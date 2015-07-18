@@ -1058,7 +1058,7 @@ int main(int argc, char **argv)
 
     setlocale(LC_ALL, "");
     for (i = 0; i < argc; i++) {
-        argv_copy[i] = Py_DecodeLocale(argv[i], NULL);
+        argv_copy[i] = _Py_char2wchar(argv[i], NULL);
         if (!argv_copy[i]) {
             PyMem_RawFree(oldloc);
             fprintf(stderr, "Fatal Python error: "

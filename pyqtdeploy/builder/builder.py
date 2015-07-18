@@ -1001,7 +1001,7 @@ class Builder():
 #if defined(Q_OS_WIN)
 int wmain(int argc, wchar_t **argv)
 {
-    return pyqtdeploy_start(argc, argv, {0}, "{1}", {2}, {3});
+    return pyqtdeploy_start(argc, argv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
 }
 #else
 int main(int argc, char **argv)
@@ -1054,7 +1054,7 @@ int main(int argc, char **argv)
 
     setlocale(LC_ALL, oldloc);
     PyMem_RawFree(oldloc);
-    res = pyqtdeploy_start(argc, argv_copy, {0}, "{1}", {2}, {3});
+    res = pyqtdeploy_start(argc, argv_copy, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
     for (i = 0; i < argc; i++) {
         PyMem_RawFree(argv_copy2[i]);
     }
@@ -1066,10 +1066,9 @@ int main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
 {
-    return pyqtdeploy_start(argc, argv, {0}, "{1}", {2}, {3});
+    return pyqtdeploy_start(argc, argv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
 }
-#endif
-'''.format(c_inittab, main_module, entry_point, path_dirs))
+#endif''' % {'c_inittab': c_inittab, 'main_module': main_module, 'entry_point': entry_point, 'path_dirs': path_dirs})
 
         f.close()
 

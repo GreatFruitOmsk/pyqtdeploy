@@ -1036,7 +1036,7 @@ int main(int argc, char **argv)
     argv_copy = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
     argv_copy2 = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
     if (!argv_copy || !argv_copy2) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, "out of memory\\n");
         return 1;
     }
 
@@ -1052,7 +1052,7 @@ int main(int argc, char **argv)
 
     oldloc = _PyMem_RawStrdup(setlocale(LC_ALL, NULL));
     if (!oldloc) {
-        fprintf(stderr, "out of memory\n");
+        fprintf(stderr, "out of memory\\n");
         return 1;
     }
 

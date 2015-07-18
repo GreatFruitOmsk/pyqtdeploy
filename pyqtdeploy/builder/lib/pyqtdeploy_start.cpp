@@ -71,10 +71,15 @@ static int append_path_dirs(PyObject *list, const char **path_dirs);
 static PyObject *string_from_qstring(const QString &qs);
 #endif
 
-
+#if PY_MAJOR_VERSION >= 3
+int pyqtdeploy_start(int argc, wchar_t **argv, struct _inittab *extension_modules,
+        const char *main_module, const char *entry_point,
+        const char **path_dirs)
+#else
 int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
         const char *main_module, const char *entry_point,
         const char **path_dirs)
+#endif
 {
     // The replacement table of frozen modules.
     static struct _frozen modules[] = {
@@ -90,7 +95,11 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
 
     if (!locale_codec)
     {
+#if PY_MAJOR_VERSION >= 3
+        fwprintf(stderr, L"%s: no locale codec found\n", argv[0]);
+#else
         fprintf(stderr, "%s: no locale codec found\n", argv[0]);
+#endif
         return 1;
     }
 
@@ -124,7 +133,11 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
     // Add the importer to the table of builtins.
     if (PyImport_AppendInittab("pdytools", PDYTOOLS_INIT) < 0)
     {
+#if PY_MAJOR_VERSION >= 3
+        fwprintf(stderr, L"%s: PyImport_AppendInittab() failed\n", argv[0]);
+#else
         fprintf(stderr, "%s: PyImport_AppendInittab() failed\n", argv[0]);
+#endif
         return 1;
     }
 
@@ -132,35 +145,19 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
     if (extension_modules != NULL)
         if (PyImport_ExtendInittab(extension_modules) < 0)
         {
+#if PY_MAJOR_VERSION >= 3
+            fwprintf(stderr, L"%s: PyImport_ExtendInittab() failed\n", argv[0]);
+#else
             fprintf(stderr, "%s: PyImport_ExtendInittab() failed\n", argv[0]);
+#endif
             return 1;
         }
 
 #if PY_MAJOR_VERSION >= 3
-    // Convert the argument list to wide characters using the locale codec.
-#if defined(Q_OS_WIN)
-        wchar_t **w_argv = __wargv;
-#else
-        wchar_t **w_argv = new wchar_t *[argc + 1];
-
-        for (int i = 0; i < argc; i++)
-        {
-            QString qs_arg = locale_codec->toUnicode(argv[i]);
-
-            wchar_t *w_arg = new wchar_t[qs_arg.length() + 1];
-
-            w_arg[qs_arg.toWCharArray(w_arg)] = 0;
-
-            w_argv[i] = w_arg;
-        }
-
-        w_argv[argc] = NULL;
-#endif
-
     // Initialise the Python v3 interpreter.
-    Py_SetProgramName(w_argv[0]);
+    Py_SetProgramName(argv[0]);
     Py_Initialize();
-    PySys_SetArgvEx(argc, w_argv, 0);
+    PySys_SetArgvEx(argc, argv, 0);
 #else
     // Initialise the Python v2 interpreter.
     Py_SetProgramName(argv[0]);
@@ -177,8 +174,8 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
         return handle_exception();
 
     // Initialise the directory containing the executable.
-#if defined(Q_OS_WIN)
-    pdytools_init_executable_dir(QString::fromWCharArray(__wargv[0]));
+#if PY_MAJOR_VERSION >= 3
+    pdytools_init_executable_dir(QString::fromWCharArray(argv[0]));
 #else
     pdytools_init_executable_dir(locale_codec->toUnicode(argv[0]));
 #endif

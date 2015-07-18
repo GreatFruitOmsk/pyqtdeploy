@@ -949,6 +949,11 @@ class Builder():
 
         f.write('''#include <Python.h>
 #include <QtGlobal>
+#include <locale.h>
+
+#ifdef __FreeBSD__
+#include <floatingpoint.h>
+#endif
 
 ''')
 
@@ -990,27 +995,81 @@ class Builder():
         struct _inittab *extension_modules, const char *main_module,
         const char *entry_point, const char **path_dirs);
 ''')
-        if sys.platform == 'win32':
-            f.write('''
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-int WINAPI wWinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPWSTR lpCmdLine,
-    int nCmdShow
-)
+
+        # From CPython's Programs/python.c (Modules/python.c for Python 2.x)
+        f.write('''#if PY_MAJOR_VERSION >= 3
+#if defined(Q_OS_WIN)
+int wmain(int argc, wchar_t **argv)
 {
-    return pyqtdeploy_start(__argc, __argv, %s, "%s", %s, %s);
+    return pyqtdeploy_start(argc, argv, {0}, "{1}", {2}, {3});
 }
-''' % (c_inittab, main_module, entry_point, path_dirs))
-        else:
-            f.write('''
+#else
 int main(int argc, char **argv)
 {
-    return pyqtdeploy_start(argc, argv, %s, "%s", %s, %s);
+    wchar_t **argv_copy;
+    /* We need a second copy, as Python might modify the first one. */
+    wchar_t **argv_copy2;
+    int i, res;
+    char *oldloc;
+#ifdef __FreeBSD__
+    fp_except_t m;
+#endif
+
+    argv_copy = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
+    argv_copy2 = (wchar_t **)PyMem_RawMalloc(sizeof(wchar_t*) * (argc+1));
+    if (!argv_copy || !argv_copy2) {
+        fprintf(stderr, "out of memory\n");
+        return 1;
+    }
+
+    /* 754 requires that FP exceptions run in "no stop" mode by default,
+     * and until C vendors implement C99's ways to control FP exceptions,
+     * Python requires non-stop mode.  Alas, some platforms enable FP
+     * exceptions by default.  Here we disable them.
+     */
+#ifdef __FreeBSD__
+    m = fpgetmask();
+    fpsetmask(m & ~FP_X_OFL);
+#endif
+
+    oldloc = _PyMem_RawStrdup(setlocale(LC_ALL, NULL));
+    if (!oldloc) {
+        fprintf(stderr, "out of memory\n");
+        return 1;
+    }
+
+    setlocale(LC_ALL, "");
+    for (i = 0; i < argc; i++) {
+        argv_copy[i] = Py_DecodeLocale(argv[i], NULL);
+        if (!argv_copy[i]) {
+            PyMem_RawFree(oldloc);
+            fprintf(stderr, "Fatal Python error: "
+                            "unable to decode the command line argument #%i\n",
+                            i + 1);
+            return 1;
+        }
+        argv_copy2[i] = argv_copy[i];
+    }
+    argv_copy2[argc] = argv_copy[argc] = NULL;
+
+    setlocale(LC_ALL, oldloc);
+    PyMem_RawFree(oldloc);
+    res = pyqtdeploy_start(argc, argv_copy, {0}, "{1}", {2}, {3});
+    for (i = 0; i < argc; i++) {
+        PyMem_RawFree(argv_copy2[i]);
+    }
+    PyMem_RawFree(argv_copy);
+    PyMem_RawFree(argv_copy2);
+    return res;
 }
-''' % (c_inittab, main_module, entry_point, path_dirs))
+#endif
+#else
+int main(int argc, char **argv)
+{
+    return pyqtdeploy_start(argc, argv, {0}, "{1}", {2}, {3});
+}
+#endif
+'''.format(c_inittab, main_module, entry_point, path_dirs))
 
         f.close()
 

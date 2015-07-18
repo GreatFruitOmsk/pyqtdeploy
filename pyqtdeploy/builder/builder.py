@@ -1005,6 +1005,18 @@ const char *entry_point, const char **path_dirs);
         # From CPython's Programs/python.c (Modules/python.c for Python 2.x)
         f.write('''#if PY_MAJOR_VERSION >= 3
 #if defined(Q_OS_WIN)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+int WINAPI wWinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPWSTR lpCmdLine,
+    int nCmdShow
+)
+{
+    return pyqtdeploy_start(__argc, __wargv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
+}
+
 int wmain(int argc, wchar_t **argv)
 {
     return pyqtdeploy_start(argc, argv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);

@@ -138,9 +138,9 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
 
 #if PY_MAJOR_VERSION >= 3
     // Convert the argument list to wide characters using the locale codec.
-    #if defined(Q_OS_WIN)
-        wchar_t **w_argv = __wargv
-    #else
+#if defined(Q_OS_WIN)
+        wchar_t **w_argv = __wargv;
+#else
         wchar_t **w_argv = new wchar_t *[argc + 1];
 
         for (int i = 0; i < argc; i++)
@@ -155,7 +155,7 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
         }
 
         w_argv[argc] = NULL;
-    #endif
+#endif
 
     // Initialise the Python v3 interpreter.
     Py_SetProgramName(w_argv[0]);

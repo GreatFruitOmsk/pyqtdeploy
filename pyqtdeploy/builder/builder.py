@@ -991,9 +991,15 @@ class Builder():
 
         path_dirs = 'path_dirs' if sys_path != '' else 'NULL'
 
-        f.write('''extern int pyqtdeploy_start(int argc, char **argv,
-        struct _inittab *extension_modules, const char *main_module,
-        const char *entry_point, const char **path_dirs);
+        f.write('''#if PY_MAJOR_VERSION >= 3
+extern int pyqtdeploy_start(int argc, wchar_t **argv,
+struct _inittab *extension_modules, const char *main_module,
+const char *entry_point, const char **path_dirs);
+#else
+extern int pyqtdeploy_start(int argc, char **argv,
+struct _inittab *extension_modules, const char *main_module,
+const char *entry_point, const char **path_dirs);
+#endif
 ''')
 
         # From CPython's Programs/python.c (Modules/python.c for Python 2.x)

@@ -1062,7 +1062,7 @@ int main(int argc, char **argv)
         if (!argv_copy[i]) {
             PyMem_RawFree(oldloc);
             fprintf(stderr, "Fatal Python error: "
-                            "unable to decode the command line argument #%%i\n",
+                            "unable to decode the command line argument #%%i\\n",
                             i + 1);
             return 1;
         }

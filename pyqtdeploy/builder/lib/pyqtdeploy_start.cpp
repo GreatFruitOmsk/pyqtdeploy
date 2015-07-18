@@ -138,20 +138,24 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
 
 #if PY_MAJOR_VERSION >= 3
     // Convert the argument list to wide characters using the locale codec.
-    wchar_t **w_argv = new wchar_t *[argc + 1];
+    #if defined(Q_OS_WIN)
+        wchar_t **w_argv = __wargv
+    #else
+        wchar_t **w_argv = new wchar_t *[argc + 1];
 
-    for (int i = 0; i < argc; i++)
-    {
-        QString qs_arg = locale_codec->toUnicode(argv[i]);
+        for (int i = 0; i < argc; i++)
+        {
+            QString qs_arg = locale_codec->toUnicode(argv[i]);
 
-        wchar_t *w_arg = new wchar_t[qs_arg.length() + 1];
+            wchar_t *w_arg = new wchar_t[qs_arg.length() + 1];
 
-        w_arg[qs_arg.toWCharArray(w_arg)] = 0;
+            w_arg[qs_arg.toWCharArray(w_arg)] = 0;
 
-        w_argv[i] = w_arg;
-    }
+            w_argv[i] = w_arg;
+        }
 
-    w_argv[argc] = NULL;
+        w_argv[argc] = NULL;
+    #endif
 
     // Initialise the Python v3 interpreter.
     Py_SetProgramName(w_argv[0]);
@@ -173,7 +177,11 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
         return handle_exception();
 
     // Initialise the directory containing the executable.
+#if defined(Q_OS_WIN)
+    pdytools_init_executable_dir(QString::fromWCharArray(__wargv[0]));
+#else
     pdytools_init_executable_dir(locale_codec->toUnicode(argv[0]));
+#endif
 
     // Configure sys.path.
     if (path_dirs != NULL)

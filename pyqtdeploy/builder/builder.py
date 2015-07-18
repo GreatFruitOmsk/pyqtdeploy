@@ -990,8 +990,22 @@ class Builder():
         struct _inittab *extension_modules, const char *main_module,
         const char *entry_point, const char **path_dirs);
 ''')
-
-        f.write('''
+        if sys.platform == 'win32':
+            f.write('''
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+int WINAPI wWinMain(
+    HINSTANCE hInstance,
+    HINSTANCE hPrevInstance,
+    LPWSTR lpCmdLine,
+    int nCmdShow
+)
+{
+    return pyqtdeploy_start(__argc, __argv, %s, "%s", %s, %s);
+}
+''' % (c_inittab, main_module, entry_point, path_dirs))
+        else:
+            f.write('''
 int main(int argc, char **argv)
 {
     return pyqtdeploy_start(argc, argv, %s, "%s", %s, %s);

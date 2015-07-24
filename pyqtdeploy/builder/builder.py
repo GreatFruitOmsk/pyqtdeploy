@@ -1006,20 +1006,13 @@ const char *entry_point, const char **path_dirs);
         f.write('''#if PY_MAJOR_VERSION >= 3
 #if defined(Q_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-int WINAPI wWinMain(
-    HINSTANCE hInstance,
-    HINSTANCE hPrevInstance,
-    LPWSTR lpCmdLine,
-    int nCmdShow
-)
-{
-    return pyqtdeploy_start(__argc, __wargv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
-}
-
-int wmain(int argc, wchar_t **argv)
-{
-    return pyqtdeploy_start(argc, argv, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
+#include <shellapi.h>
+int main() {
+    int nArgs;
+    LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+    return pyqtdeploy_start(nArgs, szArglist, %(c_inittab)s, "%(main_module)s", %(entry_point)s, %(path_dirs)s);
 }
 #else
 int main(int argc, char **argv)

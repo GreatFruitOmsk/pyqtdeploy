@@ -1006,7 +1006,6 @@ const char *entry_point, const char **path_dirs);
         f.write('''#if PY_MAJOR_VERSION >= 3
 #if defined(Q_OS_WIN)
 #define WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
 int main() {

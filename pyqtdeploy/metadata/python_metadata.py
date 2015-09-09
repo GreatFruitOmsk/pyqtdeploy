@@ -2337,8 +2337,9 @@ _metadata = {
                 deps=('collections', 'errno', 'fnmatch', 'grp', 'nt', 'os',
                         'pwd', 'stat', 'tarfile'))),
 
-    'signal':
-        CoreExtensionModule(),
+    'signal': (
+        CoreExtensionModule(max_version=(3, 4)),
+        PythonModule(version=(3, 5))),
 
     'SimpleHTTPServer':
         PythonModule(version=2,

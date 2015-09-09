@@ -36,6 +36,10 @@
 
 #include "frozen_bootstrap.h"
 
+#if PY_MAJOR_VERSION == 3  && PY_MINOR_VERSION >= 5
+#include "frozen_bootstrap_external.h"
+#endif
+
 #if defined(PYQTDEPLOY_FROZEN_MAIN)
 #include "frozen_main.h"
 #endif
@@ -84,6 +88,9 @@ int pyqtdeploy_start(int argc, char **argv, struct _inittab *extension_modules,
     // The replacement table of frozen modules.
     static struct _frozen modules[] = {
         {CONST_CAST(BOOTSTRAP_MODULE), frozen_pyqtdeploy_bootstrap, sizeof (frozen_pyqtdeploy_bootstrap)},
+#if PY_MAJOR_VERSION == 3  && PY_MINOR_VERSION >= 5
+        {CONST_CAST("_frozen_importlib_external"), frozen_pyqtdeploy_bootstrap_external, (int)sizeof(frozen_pyqtdeploy_bootstrap_external)},
+#endif
 #if defined(PYQTDEPLOY_FROZEN_MAIN)
         {CONST_CAST("__main__"), frozen_pyqtdeploy_main, sizeof (frozen_pyqtdeploy_main)},
 #endif

@@ -142,6 +142,13 @@ class Builder():
                 dst_file_name='bootstrap.py')
         self._freeze(job_writer, build_dir + '/frozen_bootstrap.h', bootstrap,
                 'pyqtdeploy_bootstrap', as_c=True)
+        if py_major == 3 and py_minor >= 5:
+            bootstrap_external_src = get_embedded_file_for_version(py_version, __file__,
+                'lib', 'bootstrap_external')
+            bootstrap_external = self._copy_lib_file(bootstrap_external_src, temp_dir.path(),
+                    dst_file_name='bootstrap_external.py')
+            self._freeze(job_writer, build_dir + '/frozen_bootstrap_external.h', bootstrap_external,
+                'pyqtdeploy_bootstrap_external', as_c=True)
 
         # Freeze any main application script.
         if project.application_script != '':

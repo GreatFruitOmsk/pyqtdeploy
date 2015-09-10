@@ -3660,6 +3660,10 @@ _metadata = {
                         '!win32#HAVE_EXPAT_CONFIG_H'),
                 includepath='expat'),
 
+    '_pydecimal':
+        PythonModule(min_version=(3, 5), internal=True,
+                     deps=('math', 'numbers')),
+
     '_random':
         ExtensionModule(internal=True, source='_randommodule.c'),
 

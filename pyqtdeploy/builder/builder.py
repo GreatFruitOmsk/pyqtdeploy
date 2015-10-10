@@ -3,14 +3,14 @@
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
-# 
+#
 # 1. Redistributions of source code must retain the above copyright notice,
 #    this list of conditions and the following disclaimer.
-# 
+#
 # 2. Redistributions in binary form must reproduce the above copyright notice,
 #    this list of conditions and the following disclaimer in the documentation
 #    and/or other materials provided with the distribution.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 # IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -142,6 +142,13 @@ class Builder():
                 dst_file_name='bootstrap.py')
         self._freeze(job_writer, build_dir + '/frozen_bootstrap.h', bootstrap,
                 'pyqtdeploy_bootstrap', as_c=True)
+        if py_major == 3 and py_minor >= 5:
+            bootstrap_external_src = get_embedded_file_for_version(py_version, __file__,
+                'lib', 'bootstrap_external')
+            bootstrap_external = self._copy_lib_file(bootstrap_external_src, temp_dir.path(),
+                    dst_file_name='bootstrap_external.py')
+            self._freeze(job_writer, build_dir + '/frozen_bootstrap_external.h', bootstrap_external,
+                'pyqtdeploy_bootstrap_external', as_c=True)
 
         # Freeze any main application script.
         if project.application_script != '':
@@ -370,7 +377,6 @@ class Builder():
         qmake_config4 -= both_config
         qmake_config5 -= both_config
 
-        both_config.add('release')
         both_config.add('warn_off')
 
         if project.application_is_console or not needs_gui:

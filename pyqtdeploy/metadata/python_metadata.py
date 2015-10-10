@@ -2337,8 +2337,9 @@ _metadata = {
                 deps=('collections', 'errno', 'fnmatch', 'grp', 'nt', 'os',
                         'pwd', 'stat', 'tarfile'))),
 
-    'signal':
-        CoreExtensionModule(),
+    'signal': (
+        CoreExtensionModule(max_version=(3, 4)),
+        PythonModule(version=(3, 5))),
 
     'SimpleHTTPServer':
         PythonModule(version=2,
@@ -3658,6 +3659,10 @@ _metadata = {
                 defines=('XML_STATIC', 'win32#COMPILED_FROM_DSP',
                         '!win32#HAVE_EXPAT_CONFIG_H'),
                 includepath='expat'),
+
+    '_pydecimal':
+        PythonModule(min_version=(3, 5), internal=True,
+                     deps=('math', 'numbers')),
 
     '_random':
         ExtensionModule(internal=True, source='_randommodule.c'),

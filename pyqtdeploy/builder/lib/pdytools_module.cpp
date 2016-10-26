@@ -24,7 +24,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 
-#include <Python.h>
+#include "pyqtdeploy_python.h"
+
 #include <marshal.h>
 #include <structmember.h>
 

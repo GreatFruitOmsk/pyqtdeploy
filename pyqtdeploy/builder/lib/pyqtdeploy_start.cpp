@@ -26,7 +26,7 @@
 
 #include <stdio.h>
 
-#include <Python.h>
+#include "pyqtdeploy_python.h"
 
 #include <QByteArray>
 #include <QDir>

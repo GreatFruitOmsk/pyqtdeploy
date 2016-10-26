@@ -663,9 +663,10 @@ class Builder():
         self._write_main(build_dir, used_inittab)
         self._copy_lib_file('pyqtdeploy_start.cpp', build_dir)
         self._copy_lib_file('pdytools_module.cpp', build_dir)
+        self._copy_lib_file('pyqtdeploy_python.h', build_dir)
 
         defines = []
-        headers = ['pyqtdeploy_version.h', 'frozen_bootstrap.h']
+        headers = ['pyqtdeploy_version.h', 'frozen_bootstrap.h', 'pyqtdeploy_python.h']
 
         if py_version >= 0x030500:
             headers.append('frozen_bootstrap_external.h')
@@ -1081,7 +1082,7 @@ class Builder():
 
         f = self._create_file(build_dir + '/pyqtdeploy_main.cpp')
 
-        f.write('''#include <Python.h>
+        f.write('''#include "pyqtdeploy_python.h"
 #include <QtGlobal>
 
 ''')

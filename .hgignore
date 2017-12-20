@@ -1,7 +1,0 @@
-syntax: glob
-.DS_Store
-*.pyc
-pyqtdeploy.egg-info
-pyqtdeploy/version.py
-VERSION
-demo/build
